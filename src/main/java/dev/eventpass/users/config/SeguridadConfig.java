@@ -17,9 +17,11 @@ import dev.eventpass.users.service.JwtService;
 public class SeguridadConfig {
 
     private final JwtService jwtService;
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
-    public SeguridadConfig(JwtService jwtService) {
+    public SeguridadConfig(JwtService jwtService, JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint) {
         this.jwtService = jwtService;
+        this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
     }
 
     @Bean
@@ -33,6 +35,9 @@ public class SeguridadConfig {
                 .requestMatchers(HttpMethod.POST, "/api/usuarios").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                 .anyRequest().authenticated()
+            )
+            .exceptionHandling(excepciones -> excepciones
+                .authenticationEntryPoint(jwtAuthenticationEntryPoint)
             )
             .addFilterBefore(new JwtAuthenticationFilter(jwtService), UsernamePasswordAuthenticationFilter.class)
             .build();

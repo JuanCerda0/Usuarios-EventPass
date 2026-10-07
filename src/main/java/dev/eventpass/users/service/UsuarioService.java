@@ -9,9 +9,11 @@ import org.springframework.transaction.annotation.Transactional;
 import dev.eventpass.users.dto.RegistrarUsuarioRequest;
 import dev.eventpass.users.dto.UsuarioResponse;
 import dev.eventpass.users.exception.EmailYaRegistradoException;
+import dev.eventpass.users.exception.SesionNoValidaException;
 import dev.eventpass.users.model.Rol;
 import dev.eventpass.users.model.Usuario;
 import dev.eventpass.users.repository.UsuarioRepository;
+import dev.eventpass.users.security.UsuarioAutenticado;
 
 @Service
 public class UsuarioService {
@@ -40,5 +42,13 @@ public class UsuarioService {
         );
 
         return UsuarioResponse.desde(usuarioRepository.save(usuario));
+    }
+
+    @Transactional(readOnly = true)
+    public UsuarioResponse obtenerPerfilActual(UsuarioAutenticado usuarioAutenticado) {
+        Usuario usuario = usuarioRepository.findByIdAndActivoTrue(usuarioAutenticado.id())
+            .orElseThrow(SesionNoValidaException::new);
+
+        return UsuarioResponse.desde(usuario);
     }
 }

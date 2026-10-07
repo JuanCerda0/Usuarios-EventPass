@@ -24,6 +24,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
     }
 
+    @ExceptionHandler(SesionNoValidaException.class)
+    public ResponseEntity<ApiError> manejarSesionNoValida(SesionNoValidaException excepcion) {
+        ApiError error = new ApiError("SESION_NO_VALIDA", excepcion.getMessage(), Map.of());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiError> manejarValidacion(MethodArgumentNotValidException excepcion) {
         Map<String, String> errores = new LinkedHashMap<>();

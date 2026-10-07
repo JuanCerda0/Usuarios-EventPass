@@ -97,3 +97,7 @@ Una solicitud exitosa devuelve `200 OK` con `token`, `tipo` (`Bearer`), `expiraE
 ```
 
 El JWT incluye `iss=eventpass-users`, `sub` con el id del usuario, `email`, `rol`, `iat` y `exp`. Para consumir rutas protegidas, el cliente enviará `Authorization: Bearer <JWT>`. Un correo/contraseña incorrectos o una cuenta inactiva devuelven el mismo `401 Unauthorized`.
+
+## Consultar el perfil autenticado
+
+Envía `GET http://localhost:8080/api/usuarios/me` con el encabezado `Authorization: Bearer <JWT>`. Devuelve el perfil actualizado desde la base de datos. Si no se envía un token válido, responde `401 Unauthorized`.
