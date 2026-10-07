@@ -6,10 +6,12 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import dev.eventpass.users.dto.RegistrarUsuarioRequest;
+import dev.eventpass.users.dto.CrearStaffRequest;
 import dev.eventpass.users.dto.UsuarioResponse;
 import dev.eventpass.users.security.UsuarioAutenticado;
 import dev.eventpass.users.service.UsuarioService;
@@ -28,6 +30,15 @@ public class UsuarioController {
     @PostMapping
     public ResponseEntity<UsuarioResponse> registrar(@Valid @RequestBody RegistrarUsuarioRequest solicitud) {
         UsuarioResponse usuario = usuarioService.registrarComprador(solicitud);
+        return ResponseEntity.status(HttpStatus.CREATED).body(usuario);
+    }
+
+    @PostMapping("/staff")
+    public ResponseEntity<UsuarioResponse> registrarStaff(
+        @Valid @RequestBody CrearStaffRequest solicitud,
+        @RequestHeader(name = "X-Staff-Provision-Key", required = false) String claveProvisional
+    ) {
+        UsuarioResponse usuario = usuarioService.registrarStaff(solicitud, claveProvisional);
         return ResponseEntity.status(HttpStatus.CREATED).body(usuario);
     }
 
