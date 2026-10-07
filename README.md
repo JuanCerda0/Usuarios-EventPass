@@ -62,7 +62,7 @@ El servicio escucha en `http://localhost:8080`.
 
 ## Registrar un comprador
 
-Envía `POST http://localhost:8080/api/usuarios` con `Content-Type: application/json`:
+Envía `POST http://localhost:8080/usuarios` con `Content-Type: application/json`:
 
 ```json
 {
@@ -76,7 +76,7 @@ Una solicitud exitosa devuelve `201 Created` con los datos públicos del usuario
 
 ## Crear una cuenta STAFF
 
-Envía `POST http://localhost:8080/api/usuarios/staff` con `Content-Type: application/json` y el encabezado `X-Staff-Provision-Key` con el valor local de `STAFF_PROVISION_KEY`:
+Envía `POST http://localhost:8080/usuarios/staff` con `Content-Type: application/json` y el encabezado `X-Staff-Provision-Key` con el valor local de `STAFF_PROVISION_KEY`:
 
 ```json
 {
@@ -90,7 +90,7 @@ El endpoint asigna el rol `STAFF` en el servidor; el cuerpo no acepta un rol ele
 
 ## Iniciar sesión
 
-Envía `POST http://localhost:8080/api/auth/login` con `Content-Type: application/json`:
+Envía `POST http://localhost:8080/auth/login` con `Content-Type: application/json`:
 
 ```json
 {
@@ -120,4 +120,4 @@ El JWT incluye `iss=eventpass-users`, `sub` con el id del usuario, `email`, `rol
 
 ## Consultar el perfil autenticado
 
-Envía `GET http://localhost:8080/api/usuarios/me` con el encabezado `Authorization: Bearer <JWT>`. Devuelve el perfil actualizado desde la base de datos. Si no se envía un token válido, responde `401 Unauthorized`.
+Envía `GET http://localhost:8080/usuarios/me` con el encabezado `Authorization: Bearer <JWT>`. Devuelve el perfil actualizado desde la base de datos. Si no se envía un token válido, responde `401 Unauthorized`.
