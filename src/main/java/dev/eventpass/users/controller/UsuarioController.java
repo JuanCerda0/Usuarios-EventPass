@@ -3,13 +3,16 @@ package dev.eventpass.users.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import dev.eventpass.users.dto.ActualizarPerfilRequest;
 import dev.eventpass.users.dto.RegistrarUsuarioRequest;
 import dev.eventpass.users.dto.CrearStaffRequest;
 import dev.eventpass.users.dto.UsuarioResponse;
@@ -47,5 +50,21 @@ public class UsuarioController {
         @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado
     ) {
         return ResponseEntity.ok(usuarioService.obtenerPerfilActual(usuarioAutenticado));
+    }
+
+    @PatchMapping("/me")
+    public ResponseEntity<UsuarioResponse> actualizarPerfilActual(
+        @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado,
+        @Valid @RequestBody ActualizarPerfilRequest solicitud
+    ) {
+        return ResponseEntity.ok(usuarioService.actualizarPerfilActual(usuarioAutenticado, solicitud));
+    }
+
+    @DeleteMapping("/me")
+    public ResponseEntity<Void> desactivarPerfilActual(
+        @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado
+    ) {
+        usuarioService.desactivarPerfilActual(usuarioAutenticado);
+        return ResponseEntity.noContent().build();
     }
 }
