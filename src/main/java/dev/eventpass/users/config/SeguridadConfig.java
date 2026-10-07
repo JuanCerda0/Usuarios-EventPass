@@ -9,9 +9,18 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import dev.eventpass.users.service.JwtService;
 
 @Configuration
 public class SeguridadConfig {
+
+    private final JwtService jwtService;
+
+    public SeguridadConfig(JwtService jwtService) {
+        this.jwtService = jwtService;
+    }
 
     @Bean
     SecurityFilterChain filtroSeguridad(HttpSecurity http) throws Exception {
@@ -22,9 +31,10 @@ public class SeguridadConfig {
             .sessionManagement(sesion -> sesion.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(autorizacion -> autorizacion
                 .requestMatchers(HttpMethod.POST, "/api/usuarios").permitAll()
-                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                 .anyRequest().authenticated()
             )
+            .addFilterBefore(new JwtAuthenticationFilter(jwtService), UsernamePasswordAuthenticationFilter.class)
             .build();
     }
 
