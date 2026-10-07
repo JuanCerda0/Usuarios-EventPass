@@ -48,4 +48,10 @@ public class GlobalExceptionHandler {
         ApiError respuesta = new ApiError("SOLICITUD_INVALIDA", "Revisa los datos enviados", errores);
         return ResponseEntity.badRequest().body(respuesta);
     }
+
+    @ExceptionHandler(SolicitudPerfilInvalidaException.class)
+    public ResponseEntity<ApiError> manejarSolicitudPerfilInvalida(SolicitudPerfilInvalidaException excepcion) {
+        ApiError error = new ApiError("SOLICITUD_INVALIDA", excepcion.getMessage(), Map.of());
+        return ResponseEntity.badRequest().body(error);
+    }
 }

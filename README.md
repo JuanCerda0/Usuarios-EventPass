@@ -121,3 +121,19 @@ El JWT incluye `iss=eventpass-users`, `sub` con el id del usuario, `email`, `rol
 ## Consultar el perfil autenticado
 
 Envía `GET http://localhost:8080/usuarios/me` con el encabezado `Authorization: Bearer <JWT>`. Devuelve el perfil actualizado desde la base de datos. Si no se envía un token válido, responde `401 Unauthorized`.
+## Actualizar el perfil autenticado
+
+Envía `PATCH http://localhost:8080/usuarios/me` con el encabezado `Authorization: Bearer <JWT>` y al menos uno de los campos editables:
+
+```json
+{
+  "nombre": "Ana Pérez",
+  "email": "ana.nueva@example.com"
+}
+```
+
+El nombre y el correo son opcionales por separado. El usuario no puede cambiar su rol ni su estado mediante este endpoint. Si el correo ya pertenece a otra cuenta, responde `409 Conflict`; si los datos son inválidos, responde `400 Bad Request`.
+
+## Desactivar la cuenta autenticada
+
+Envía `DELETE http://localhost:8080/usuarios/me` con el encabezado `Authorization: Bearer <JWT>`. La cuenta queda inactiva y responde `204 No Content`; no se elimina físicamente para conservar sus referencias en órdenes y tickets. Una cuenta inactiva no puede iniciar sesión ni consultar su perfil.

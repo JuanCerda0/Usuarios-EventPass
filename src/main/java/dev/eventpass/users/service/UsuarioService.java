@@ -10,10 +10,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import dev.eventpass.users.dto.CrearStaffRequest;
+import dev.eventpass.users.dto.ActualizarPerfilRequest;
 import dev.eventpass.users.dto.RegistrarUsuarioRequest;
 import dev.eventpass.users.dto.UsuarioResponse;
 import dev.eventpass.users.exception.ClaveProvisionamientoInvalidaException;
 import dev.eventpass.users.exception.EmailYaRegistradoException;
+import dev.eventpass.users.exception.SolicitudPerfilInvalidaException;
 import dev.eventpass.users.exception.SesionNoValidaException;
 import dev.eventpass.users.model.Rol;
 import dev.eventpass.users.model.Usuario;
@@ -88,5 +90,43 @@ public class UsuarioService {
             .orElseThrow(SesionNoValidaException::new);
 
         return UsuarioResponse.desde(usuario);
+    }
+
+    @Transactional
+    public UsuarioResponse actualizarPerfilActual(
+        UsuarioAutenticado usuarioAutenticado,
+        ActualizarPerfilRequest solicitud
+    ) {
+        if (solicitud.nombre() == null && solicitud.email() == null) {
+            throw new SolicitudPerfilInvalidaException();
+        }
+
+        Usuario usuario = usuarioRepository.findByIdAndActivoTrue(usuarioAutenticado.id())
+            .orElseThrow(SesionNoValidaException::new);
+
+        if (solicitud.nombre() != null) {
+            usuario.setNombre(solicitud.nombre().trim());
+        }
+
+        if (solicitud.email() != null) {
+            String emailNormalizado = solicitud.email().trim().toLowerCase(Locale.ROOT);
+            if (usuarioRepository.existsByEmailAndIdNot(emailNormalizado, usuario.getId())) {
+                throw new EmailYaRegistradoException();
+            }
+            usuario.setEmail(emailNormalizado);
+        }
+
+        return UsuarioResponse.desde(usuarioRepository.save(usuario));
+    }
+
+    @Transactional
+    public void desactivarPerfilActual(UsuarioAutenticado usuarioAutenticado) {
+        Usuario usuario = usuarioRepository.findById(usuarioAutenticado.id())
+            .orElseThrow(SesionNoValidaException::new);
+
+        if (usuario.isActivo()) {
+            usuario.setActivo(false);
+            usuarioRepository.save(usuario);
+        }
     }
 }
