@@ -219,47 +219,57 @@ Cada servicio accede a su propia base de datos. Los servicios no consultan direc
 ### Requisitos
 
 - JDK 21.
-- PostgreSQL local.
+- Docker Desktop con Docker Compose para levantar PostgreSQL local, o una instancia PostgreSQL compatible.
 - Git para clonar el repositorio.
 
 No se requiere instalar Maven por separado: el repositorio incluye Maven Wrapper.
 
-### 1. Crear la base de datos
+### 1. Configurar variables locales
 
-En PostgreSQL crea una base llamada `eventpass_users`:
+Desde la raíz del repositorio, crea `.env` a partir del ejemplo solo si todavía no existe:
 
-```sql
-CREATE DATABASE eventpass_users;
+```powershell
+if (-not (Test-Path .env)) { Copy-Item .env.example .env }
 ```
 
-### 2. Configurar variables locales
-
-Desde la raíz del repositorio, copia `.env.example` a `.env` y configura el usuario y contraseña de PostgreSQL, además de las claves locales:
-
-```cmd
-copy .env.example .env
-```
+Si ya tienes un `.env`, consérvalo y actualiza ahí `DB_URL`, `DB_PASSWORD` y `DB_HOST_PORT`; no lo sobrescribas.
 
 Variables reconocidas:
 
 | Variable | Uso | Predeterminado |
 |---|---|---|
-| `DB_URL` | URL JDBC de PostgreSQL. | `jdbc:postgresql://localhost:5432/eventpass_users` |
+| `DB_URL` | URL JDBC de PostgreSQL. | `jdbc:postgresql://localhost:5433/eventpass_users` |
 | `DB_USERNAME` | Usuario de PostgreSQL. | `postgres` |
-| `DB_PASSWORD` | Contraseña local de PostgreSQL. | Vacía |
+| `DB_PASSWORD` | Contraseña local de PostgreSQL. | `users_local_dev` en el ejemplo |
+| `DB_HOST_PORT` | Puerto publicado en el host para PostgreSQL. | `5433` |
 | `SERVER_PORT` | Puerto HTTP. | `8080` |
 | `JWT_SECRET_BASE64` | Clave Base64 para firmar/verificar JWT; debe representar al menos 256 bits. | Sin valor; obligatoria |
 | `JWT_EXPIRATION_SECONDS` | Vigencia del JWT. | `3600` |
 | `STAFF_PROVISION_KEY` | Clave para crear cuentas STAFF; mínimo 32 caracteres. | Sin valor; obligatoria |
 
-`.env` está excluido de Git. Reemplaza todos los valores de ejemplo y no compartas ni subas el archivo. Para generar valores aleatorios localmente puedes usar un administrador de contraseñas o herramientas criptográficas del sistema.
+`.env` está excluido de Git. Los valores de contraseña incluidos son solo para desarrollo local; puedes cambiarlos, pero usa el mismo `DB_PASSWORD` en la aplicación y en Compose. No compartas ni subas `.env`. Para generar secretos locales puedes usar un administrador de contraseñas o herramientas criptográficas del sistema.
+
+### 2. Levantar PostgreSQL con Docker Compose
+
+El Compose crea únicamente la base `eventpass_users` y la publica en `127.0.0.1:5433`. El volumen `eventpass-users-postgres-data` conserva los datos al detener el contenedor.
+
+```powershell
+docker compose -f compose.postgres.yaml up -d
+docker compose -f compose.postgres.yaml ps
+```
+
+Este archivo levanta la base de datos, no la aplicación Users. Para detener PostgreSQL sin borrar su volumen:
+
+```powershell
+docker compose -f compose.postgres.yaml down
+```
 
 ### 3. Iniciar la aplicación
 
 En Windows, desde la raíz del repositorio:
 
-```cmd
-mvnw.cmd spring-boot:run
+```powershell
+.\mvnw.cmd spring-boot:run
 ```
 
 La API queda disponible en `http://localhost:8080` (o el puerto definido en `SERVER_PORT`). Hibernate está configurado con `ddl-auto=update` para facilitar el desarrollo local; antes de un despliegue real se deben usar migraciones de esquema y definir configuración segura de producción.
